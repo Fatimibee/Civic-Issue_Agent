@@ -35,12 +35,14 @@ if(exists){
 }
 
 users.push({name,email,password});
+
 localStorage.setItem("users",JSON.stringify(users));
 
-alert("Account created");
-window.location="login.html";
-}
+alert("Account created successfully");
 
+window.location="login.html";
+
+}
 /* LOGIN */
 function login(){
 
@@ -65,6 +67,7 @@ if(role==="citizen"){
 }else{
  window.location="authority.html";
 }
+
 }
 
 /* SUBMIT REPORT */
@@ -101,7 +104,7 @@ reader.onload=function(){
 
  localStorage.setItem("reports",JSON.stringify(reports));
 
- loadCitizen();
+loadCitizen();
  alert("Issue submitted");
 
 }
@@ -110,6 +113,57 @@ reader.readAsDataURL(file);
 }
 
 /* CITIZEN HISTORY */
+async function getUserComplaintHistory(userId) {
+
+    try {
+
+        const response = await fetch("https://web-production-fe871.up.railway.app/user_history", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: userId
+            })
+        });
+
+        const data = await response.json();
+
+        console.log("Complaint History:", data);
+
+        displayComplaints(data);
+
+    } catch (error) {
+        console.error("Error fetching complaint history:", error);
+    }
+}
+
+function displayComplaints(complaints) {
+
+    const container = document.getElementById("citizenReports");
+
+    if(!container) return;
+
+    container.innerHTML = "";
+
+    complaints.forEach((complaint) => {
+
+        const card = `
+        <div class="report-item">
+
+            <div>
+                <p><b>Title:</b> ${complaint.title || "Issue"}</p>
+                <p><b>Description:</b> ${complaint.description || "-"}</p>
+                <p><b>Status:</b> ${complaint.status}</p>
+            </div>
+
+        </div>
+        `;
+
+        container.innerHTML += card;
+    });
+}
+
 function loadCitizen(){
 
 let user=localStorage.getItem("userEmail");
@@ -136,30 +190,51 @@ reports.filter(r=>r.email===user).forEach((r)=>{
 }
 
 /* AUTHORITY DASHBOARD */
-function loadAuthority(){
+async function loadAuthority(){
 
-let reports=JSON.parse(localStorage.getItem("reports")||"[]");
-let box=document.getElementById("authorityReports");
+try{
+
+const response = await fetch("https://web-production-fe871.up.railway.app/issues/1");
+
+const data = await response.json();
+
+const box=document.getElementById("authorityReports");
 
 if(!box) return;
 
 box.innerHTML="";
 
-reports.forEach((r,i)=>{
+data.forEach((issue)=>{
 
- box.innerHTML+=`
- <div class="report-item">
-  <img src="${r.image}" width="140">
-  <div>
-   <p>Status: ${r.status}</p>
-   <button onclick="toggleStatus(${i})">Change Status</button>
-  </div>
- </div>
- `;
+box.innerHTML+=`
+
+<div class="report-item">
+
+<img src="${issue.image_url}" width="140">
+
+<div>
+
+<p><b>Department:</b> ${issue.department}</p>
+
+<p><b>Status:</b> ${issue.status}</p>
+
+<button>Toggle Status</button>
+
+</div>
+
+</div>
+
+`;
 
 });
+
+}catch(error){
+
+console.log(error);
+
 }
 
+}
 function toggleStatus(i){
 
 let reports=JSON.parse(localStorage.getItem("reports")||"[]");
@@ -173,7 +248,15 @@ loadAuthority();
 
 /* PAGE LOAD */
 window.onload=function(){
+
  checkAccess();
- loadCitizen();
+
+ let user = localStorage.getItem("userEmail");
+
+ if(user){
+   getUserComplaintHistory(user);
+ }
+
  loadAuthority();
+
 }
