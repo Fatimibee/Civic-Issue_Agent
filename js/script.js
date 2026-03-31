@@ -18,6 +18,17 @@ if(location.pathname.includes("authority.html")){
 }
 }
 
+if (location.pathname.includes("login.html")) {
+  localStorage.removeItem("userEmail");
+  localStorage.removeItem("userRole");
+}
+
+function logout(){
+ localStorage.removeItem("userEmail");
+ localStorage.removeItem("userRole");
+ window.location="login.html";
+}
+
 /* SIGNUP */
 function signup(){
 
@@ -37,6 +48,11 @@ if(exists){
 users.push({name,email,password});
 
 localStorage.setItem("users",JSON.stringify(users));
+
+// 🔥 CLEAR FORM
+document.getElementById("name").value="";
+document.getElementById("email").value="";
+document.getElementById("password").value="";
 
 alert("Account created successfully");
 
@@ -59,8 +75,15 @@ if(!user){
  return;
 }
 
+// SAVE LOGIN
 localStorage.setItem("userEmail",email);
 localStorage.setItem("userRole",role);
+
+saveUserAPI(email);
+
+// 🔥 CLEAR INPUTS (IMPORTANT)
+document.getElementById("email").value="";
+document.getElementById("password").value="";
 
 if(role==="citizen"){
  window.location="report.html";
@@ -104,6 +127,8 @@ reader.onload=function(){
 
  localStorage.setItem("reports",JSON.stringify(reports));
 
+ addDepartmentAPI();
+ 
 loadCitizen();
  alert("Issue submitted");
 
@@ -243,6 +268,8 @@ reports[i].status = reports[i].status==="Pending" ? "Approved" : "Pending";
 
 localStorage.setItem("reports",JSON.stringify(reports));
 
+updateStatusAPI(i,"Approved");
+
 loadAuthority();
 }
 
@@ -259,4 +286,38 @@ window.onload=function(){
 
  loadAuthority();
 
+}
+
+async function saveUserAPI(email){
+ try{
+  await fetch("https://web-production-fe871.up.railway.app/save_user",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ email })
+  });
+  console.log("User saved");
+ }catch(e){ console.log("save_user failed"); }
+}
+
+async function addDepartmentAPI(){
+ try{
+  await fetch("https://web-production-fe871.up.railway.app/add_department",{
+    method:"POST"
+  });
+  console.log("Department added");
+ }catch(e){ console.log("department failed"); }
+}
+
+async function updateStatusAPI(id,status){
+ try{
+  await fetch("https://web-production-fe871.up.railway.app/save_user",{
+    method:"PUT",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      complaint_id:id,
+      status:status
+    })
+  });
+  console.log("Status updated");
+ }catch(e){ console.log("update failed"); }
 }
