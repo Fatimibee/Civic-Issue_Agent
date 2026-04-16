@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report Issue</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="index.html">Home</a>
+    <a href="workflow.html">Workflow</a>
+    <a href="guidelines.html">Guidelines</a>
+    <a href="about.html">About</a>
+    <a href="report.html">Report</a>
+</nav>
+
+<div class="section">
+    <h1>Report Infrastructure Issue</h1>
+
+    <div class="report-box">
+        <h3>Upload Issue Image</h3>
+
+        <input type="file" id="image" accept="image/*"><br><br>
+
+        <input type="text" id="location" placeholder="Enter Location"><br><br>
+
+        <button onclick="submitReport()">Submit Issue</button>
+    </div>
+
+    <!-- RESULT FROM AI -->
+    <div id="result" style="margin-top:20px;"></div>
+
+</div>
+
+<script src="js/script.js"></script>
+
+</body>
+</html>

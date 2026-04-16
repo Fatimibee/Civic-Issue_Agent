@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Authority Panel</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h1 style="text-align:center">Authority Control Panel</h1>
+
+<div style="max-width:900px;margin:auto">
+
+<!-- Counters -->
+<div class="report-box">
+<h3>Dashboard Overview</h3>
+<p>Total Issues: <span id="totalCount">0</span></p>
+<p>Pending: <span id="pendingCount">0</span></p>
+<p>Approved: <span id="approvedCount">0</span></p>
+</div>
+
+<!-- Department Filter -->
+<div class="report-box">
+<h3>Filter by Department</h3>
+<select id="deptFilter" onchange="loadAuthority()">
+<option value="all">All</option>
+<option value="General">General</option>
+<option value="Municipal">Municipal</option>
+<option value="Water">Water</option>
+<option value="Electricity">Electricity</option>
+<option value="Garbage">Garbage</option>
+</select>
+</div>
+
+<div id="authorityReports" class="history"></div>
+
+</div>
+
+<script src="js/script.js"></script>
+<script>
+function updateCounters(){
+
+let reports=JSON.parse(localStorage.getItem("reports")||"[]")
+
+let total=reports.length
+let pending=reports.filter(r=>r.status==="Pending").length
+let approved=reports.filter(r=>r.status==="Approved").length
+
+document.getElementById("totalCount").innerText=total
+document.getElementById("pendingCount").innerText=pending
+document.getElementById("approvedCount").innerText=approved
+
+}
+
+let oldLoadAuthority=loadAuthority
+
+loadAuthority=function(){
+
+let filter=document.getElementById("deptFilter").value
+
+let reports=JSON.parse(localStorage.getItem("reports")||"[]")
+let box=document.getElementById("authorityReports")
+
+box.innerHTML=""
+
+reports
+.filter(r=>filter==="all" || (r.department||"General")===filter)
+.forEach((r,i)=>{
+
+box.innerHTML+=`
+<div class="report-item">
+<img src="${r.image}" width="140">
+<div>
+<p><b>Department:</b> ${r.department||"General"}</p>
+<p><b>Status:</b> ${r.status}</p>
+<button onclick="toggleStatus(${i})">Toggle Status</button>
+</div>
+</div>
+`
+
+})
+
+updateCounters()
+
+}
+</script>
+
+</body>
+</html>
